@@ -1,0 +1,37 @@
+[project]
+name = "pagi"
+version = "0.1.0"
+description = "ORM-agnostic pagination toolkit for Python"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [
+    { name = "Daryll Lorenzo Alfonso", email = "daryllla77@gmail.com" }
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed"
+]
+dependencies = [
+    "build>=1.3.0",
+    "pydantic>=2.0.0",
+    "twine>=6.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+Homepage = "https://github.com/DaryllLorenzo/pagi"
+Repository = "https://github.com/DaryllLorenzo/pagi"
