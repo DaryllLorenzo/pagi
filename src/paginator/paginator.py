@@ -1,7 +1,6 @@
 from typing import Any, Callable
 from .models import PaginatedResponse, OffsetLimitPaginator
 from .strategies.base import PaginationStrategy
-from .strategies.sqlalchemy import create_sqlalchemy_strategy
 
 async def paginate(
     connection: Any,
@@ -74,10 +73,11 @@ def _get_strategy(connection: Any, backend: str) -> PaginationStrategy:
         NotImplementedError: If backend is known but not implemented yet.
     """
     if backend == "sqlalchemy":
+        from .strategies.sqlalchemy import create_sqlalchemy_strategy
         return create_sqlalchemy_strategy(connection)
     elif backend == "django":
-        # Will be implemented later
-        raise NotImplementedError("Django backend support is not yet implemented.")
+        from .strategies.django import create_django_strategy
+        return create_django_strategy(connection)
     elif backend == "tortoise":
         # Will be implemented later
         raise NotImplementedError("Tortoise-ORM backend support is not yet implemented.")
