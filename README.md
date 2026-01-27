@@ -1,54 +1,156 @@
 # pagi
 
-A minimal, ORM-agnostic pagination toolkit for Python.  
-Define your pagination logic once, and paginate **efficiently** with SQLAlchemy, Django, raw SQL, or any data source — all wrapped in typed Pydantic models.
+A minimal, ORM-agnostic pagination toolkit for Python.
 
-✨ **Features**
-- ✅ Pydantic v2 models for `OffsetLimit` requests and `PaginatedResponse`
+`pagi` lets you define pagination logic once and reuse it across different ORMs (SQLAlchemy, Django, etc.), returning consistent, typed responses powered by Pydantic.
 
-📦 **Install**
+---
+
+## Features
+
+* Offset/limit pagination with validation via Pydantic
+* Unified response model (`PaginatedResponse`)
+* SQLAlchemy support (sync and async)
+* Django ORM support
+* Strategy-based internal design for easy extensibility
+* ORM-agnostic public API
+
+---
+
+## Installation
+
 ```bash
 pip install pagi
-# or with uv
-uv pip install pagi
 ```
+
+Or with development dependencies:
+
+```bash
+pip install -e .[dev]
+```
+
+---
+
+## Basic Usage
+
+### Importing
+
+The installable package name is `pagi`, but the Python module is `paginator`.
+
+Recommended import:
+
+```python
+from paginator.paginator import paginate, paginate_sync
+```
+
+---
+
+## SQLAlchemy (Synchronous)
+
+```python
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+from paginator import paginate_sync
+
+def get_users(session: Session):
+    return paginate_sync(
+        session,
+        lambda: select(User),
+        offset=10,
+        limit=5,
+        backend="sqlalchemy",
+    )
+```
+
+---
+
+## SQLAlchemy (Asynchronous)
+
+```python
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from paginator import paginate
+
+async def get_users(session: AsyncSession):
+    return await paginate(
+        session,
+        lambda: select(User),
+        offset=10,
+        limit=5,
+        backend="sqlalchemy",
+    )
+```
+
+The correct strategy (sync vs async) is selected automatically based on the session type.
+
+---
+
+## Django ORM
+
+```python
+from paginator import paginate_sync
+from myapp.models import User
+
+result = paginate_sync(
+    connection=None,
+    query_func=lambda: User.objects.all(),
+    offset=20,
+    limit=10,
+    backend="django",
+)
+```
+
+Notes:
+
+* `query_func` must return an unevaluated Django `QuerySet`
+* Django pagination is synchronous (async execution is not supported)
+
+---
+
+## Design and Architecture
+
+`pagi` is built around the **Strategy pattern**, allowing multiple ORMs to be supported while keeping a single, simple public API.
+
+* `paginator.paginator` exposes the public functions (`paginate`, `paginate_sync`)
+* Each ORM implements its own pagination strategy
+* A small factory selects the appropriate strategy at runtime based on the backend and connection type
+* Pagination logic is decoupled from data access, making new backends easy to add
+
+### SQLAlchemy Strategy Selection
+
+For SQLAlchemy, `pagi` uses a factory-based approach:
+
+* Passing a `Session` enables synchronous pagination
+* Passing an `AsyncSession` enables asynchronous pagination
+* The correct strategy is chosen automatically without extra configuration
+
+---
 
 ## Roadmap
 
-Here’s what’s planned — contributions are welcome!
+* Cursor-based pagination (cursor tokens instead of offset/limit)
+* Tortoise ORM support
+* Optional total count for performance-sensitive queries
 
-- [x] **Create repository and basic models**  
+---
 
-- [x] **SQLAlchemy integration**  
-  Implement strategy pattern to support both **async and sync sessions** 
+## Development
 
-- [ ] **Django ORM support**  
-  Evaluate feasibility and provide `DataSource` examples for Django QuerySets.
+Run tests with:
 
-- [ ] **Tortoise ORM support**  
-  Assess API compatibility and document usage patterns.
+```bash
+pytest
+```
 
-- [ ] **Cursor-based pagination**  
-  Add `CursorPaginator` and `CursorPaginatedResponse` as an alternative to offset/limit (for better performance on large datasets).
+The test suite covers:
 
-¡Claro! Aquí tienes una actualización **breve, clara y profesional** del README que menciona el diseño basado en patrones y la estructura interna, sin alargarse:
+* SQLAlchemy (sync)
+* SQLAlchemy (async, optional)
+* Django ORM
 
+---
 
-## 🧠 Design & Architecture
+## License
 
-`pagi` is built around the **Strategy pattern**, allowing it to support multiple ORMs while keeping the core API simple and unified.  
+MIT
 
-- **`paginator.py`** provides the public API (`paginate`, `paginate_sync`) and delegates to backend-specific strategies.
-- Each ORM (e.g., SQLAlchemy) implements a **concrete strategy** that handles its own session/query mechanics.
-- Pagination logic is **decoupled from data sources**, making it easy to extend to Django, Tortoise, or custom backends.
-
-
-### SQLAlchemy
-
-The SQLAlchemy integration uses a **factory-based strategy** to automatically select the right execution mode:
-
-- When you pass a `Session`, `pagi` uses a **synchronous strategy**.
-- When you pass an `AsyncSession`, it switches to an **asynchronous strategy**.
-- The factory (`create_sqlalchemy_strategy`) inspects the session type and instantiates the appropriate paginator internally — **no configuration needed**.
-
-This ensures you always use the correct execution model (`paginate_sync` ↔ sync session, `paginate` ↔ async session).
