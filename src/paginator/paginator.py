@@ -79,8 +79,8 @@ def _get_strategy(connection: Any, backend: str) -> PaginationStrategy:
         from .strategies.django import create_django_strategy
         return create_django_strategy(connection)
     elif backend == "tortoise":
-        # Will be implemented later
-        raise NotImplementedError("Tortoise-ORM backend support is not yet implemented.")
+        from .strategies.tortoise import create_tortoise_strategy
+        return create_tortoise_strategy(connection)
     else:
         supported = ["sqlalchemy", "django", "tortoise"]
         raise ValueError(
