@@ -1,6 +1,6 @@
 [project]
 name = "pagi"
-version = "0.2.0"
+version = "0.3.0"
 description = "ORM-agnostic pagination toolkit for Python"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -28,7 +28,8 @@ dev = [
     "pytest-asyncio>=0.23.0",
     "django",
     "sqlalchemy",
-    "aiosqlite"
+    "aiosqlite",
+    "tortoise-orm"
 ]
 
 [build-system]
