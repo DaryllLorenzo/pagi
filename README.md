@@ -198,6 +198,19 @@ The test suite covers:
 * Django ORM
 * Tortoise ORM
 
+### Test Coverage
+
+All edge cases are tested for each backend (30 tests total):
+
+* **Empty result set** - Query returns 0 records
+* **First page** - `offset=0, limit=N`
+* **Last page (partial)** - Requested limit exceeds remaining records
+* **Exact page boundary** - `offset + limit == total`
+* **Offset beyond total** - `offset > total` returns empty items
+* **Maximum limit** - Test with `limit=100`
+* **Limit validation** - `limit=0` or `limit > 100` raises `ValidationError`
+* **Negative offset** - Raises `ValidationError`
+
 ---
 
 ## License
